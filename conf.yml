@@ -1,0 +1,12 @@
+info:
+  name: "IDE File Manager"
+  identifier: "idefilemanager"
+  description: "Ajoute un IDE complet au panel."
+  version: "1.0.0"
+  target: "rolling"
+  author: "ENI"
+admin:
+  view: "admin.blade.php"
+dashboard:
+  css: "dashboard/components/ide-filemanager.css"
+  components: "dashboard/components"
