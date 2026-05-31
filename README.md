@@ -12,3 +12,5 @@ The extension contains many bugs, some of which I will fix, but if you find a bu
 
 
 [Download](https://github.com/g-flyMC/IdleFileManager/releases/tag/latest)
+
+Credit: Antigravity generated a large part of the source code
