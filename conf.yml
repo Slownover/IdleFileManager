@@ -1,10 +1,10 @@
 info:
   name: "IDE File Manager"
   identifier: "idefilemanager"
-  description: "Ajoute un IDE complet au panel."
-  version: "1.0.0"
+  description: "An extention who ehance files management."
+  version: "1.1.0"
   target: "rolling"
-  author: "ENI"
+  author: "g_fly"
 admin:
   view: "admin.blade.php"
 dashboard:
