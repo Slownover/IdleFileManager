@@ -1,3 +1,0 @@
-Navigation:
-  Routes:
-    - { Name: 'IDE', Path: '/ide', Type: 'server', Component: 'IdeFileManager', AdminOnly: 'false' }
