@@ -6,7 +6,7 @@ import IdeConsole from "./IdeConsole";
 import IdeSettings from "./IdeSettings";
 import IdeSearch from "./IdeSearch";
 import { IdeTab, IdeFile } from "./ide-types";
-import "./ide-filemanager.css";
+import "";
 
 interface Props {
   children?: React.ReactNode;
