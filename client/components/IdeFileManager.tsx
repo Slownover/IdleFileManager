@@ -1,12 +1,12 @@
-import React, { useState, useCallback, useEffect, useRef } from "react";
-import { useParams } from "react-router-dom";
-import FileTreeSidebar from "./FileTreeSidebar";
-import FileEditorTabs from "./FileEditorTabs";
-import IdeConsole from "./IdeConsole";
-import IdeSettings from "./IdeSettings";
-import IdeSearch from "./IdeSearch";
-import { IdeTab, IdeFile } from "./ide-types";
-import "";
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { useParams } from 'react-router-dom';
+import FileTreeSidebar from './FileTreeSidebar';
+import FileEditorTabs from './FileEditorTabs';
+import IdeConsole from './IdeConsole';
+import IdeSettings from './IdeSettings';
+import IdeSearch from './IdeSearch';
+import { IdeTab, IdeFile } from './ide-types';
+import '';
 
 interface Props {
   children?: React.ReactNode;
@@ -23,26 +23,16 @@ const MIN_CONSOLE = 80;
 function getOffsets(): { left: number; top: number } {
   let left = 0;
   let top = 0;
-  document.querySelectorAll<HTMLElement>("*").forEach((el) => {
+  document.querySelectorAll<HTMLElement>('*').forEach((el) => {
     const s = window.getComputedStyle(el);
-    if (s.position !== "fixed" && s.position !== "sticky") return;
+    if (s.position !== 'fixed' && s.position !== 'sticky') return;
     const r = el.getBoundingClientRect();
     // Sidebar gauche : ancré à x=0, étroit (< 300px), haut (> 50% viewport)
-    if (
-      r.left === 0 &&
-      r.width > 20 &&
-      r.width < 300 &&
-      r.height > window.innerHeight * 0.5
-    ) {
+    if (r.left === 0 && r.width > 20 && r.width < 300 && r.height > window.innerHeight * 0.5) {
       left = Math.max(left, r.width);
     }
     // Navbar top : ancré à y=0, large (> 50% viewport), court (< 120px)
-    if (
-      r.top === 0 &&
-      r.width > window.innerWidth * 0.5 &&
-      r.height > 20 &&
-      r.height < 120
-    ) {
+    if (r.top === 0 && r.width > window.innerWidth * 0.5 && r.height > 20 && r.height < 120) {
       top = Math.max(top, r.height);
     }
   });
@@ -53,20 +43,15 @@ const IdeFileManager: React.FC<Props> = ({ children }) => {
   const { id: serverId } = useParams<{ id: string }>();
 
   // ── Mode Toggle ──
-  const [isIdeMode, setIsIdeMode] = useState(
-    () => localStorage.getItem("ide-mode") !== "false",
-  );
+  const [isIdeMode, setIsIdeMode] = useState(() => localStorage.getItem('ide-mode') !== 'false');
   useEffect(() => {
-    localStorage.setItem("ide-mode", isIdeMode ? "true" : "false");
+    localStorage.setItem('ide-mode', isIdeMode ? 'true' : 'false');
   }, [isIdeMode]);
 
   // ── Global CSS init ──
   useEffect(() => {
-    const rounded = localStorage.getItem("ide-rounded-corners") !== "false";
-    document.documentElement.style.setProperty(
-      "--ide-radius",
-      rounded ? "8px" : "0px",
-    );
+    const rounded = localStorage.getItem('ide-rounded-corners') !== 'false';
+    document.documentElement.style.setProperty('--ide-radius', rounded ? '8px' : '0px');
   }, []);
 
   // ── Offset détection (Nebula sidebar + top nav) ──
@@ -74,29 +59,26 @@ const IdeFileManager: React.FC<Props> = ({ children }) => {
     if (!isIdeMode) return;
     const apply = () => {
       const { left, top } = getOffsets();
-      document.documentElement.style.setProperty(
-        "--ide-left-offset",
-        `${left}px`,
-      );
-      document.documentElement.style.setProperty("--ide-nav-top", `${top}px`);
+      document.documentElement.style.setProperty('--ide-left-offset', `${left}px`);
+      document.documentElement.style.setProperty('--ide-nav-top', `${top}px`);
     };
     // Première passe après un court délai (Nebula render async)
     apply();
     const t = setTimeout(apply, 200);
-    window.addEventListener("resize", apply);
+    window.addEventListener('resize', apply);
     const obs = new MutationObserver(apply);
     obs.observe(document.body, {
       childList: true,
       subtree: false,
       attributes: true,
-      attributeFilter: ["style", "class"],
+      attributeFilter: ['style', 'class'],
     });
     return () => {
       clearTimeout(t);
-      window.removeEventListener("resize", apply);
+      window.removeEventListener('resize', apply);
       obs.disconnect();
-      document.documentElement.style.setProperty("--ide-left-offset", "0px");
-      document.documentElement.style.setProperty("--ide-nav-top", "57px");
+      document.documentElement.style.setProperty('--ide-left-offset', '0px');
+      document.documentElement.style.setProperty('--ide-nav-top', '57px');
     };
   }, [isIdeMode]);
 
@@ -115,7 +97,7 @@ const IdeFileManager: React.FC<Props> = ({ children }) => {
     return [];
   });
   const [activeTabId, setActiveTabId] = useState<string | null>(
-    () => localStorage.getItem(`ide-active-tab-${serverId}`) || null,
+    () => localStorage.getItem(`ide-active-tab-${serverId}`) || null
   );
 
   useEffect(() => {
@@ -129,65 +111,60 @@ const IdeFileManager: React.FC<Props> = ({ children }) => {
   }, [tabs, serverId]);
 
   useEffect(() => {
-    if (activeTabId)
-      localStorage.setItem(`ide-active-tab-${serverId}`, activeTabId);
+    if (activeTabId) localStorage.setItem(`ide-active-tab-${serverId}`, activeTabId);
     else localStorage.removeItem(`ide-active-tab-${serverId}`);
   }, [activeTabId, serverId]);
 
   const [sidebarWidth, setSidebarWidth] = useState(240);
   const [consoleHeight, setConsoleHeight] = useState(200);
   const [consoleOpen, setConsoleOpen] = useState(true);
-  const [currentDirectory, setCurrentDirectory] = useState("/");
+  const [currentDirectory, setCurrentDirectory] = useState('/');
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const rootRef = useRef<HTMLDivElement>(null);
   const mainColRef = useRef<HTMLDivElement>(null);
-  const dragging = useRef<"sidebar" | "console" | null>(null);
+  const dragging = useRef<'sidebar' | 'console' | null>(null);
 
   // ── Resize handlers ──
   useEffect(() => {
     const move = (e: MouseEvent) => {
       if (!dragging.current) return;
-      if (dragging.current === "sidebar" && rootRef.current) {
+      if (dragging.current === 'sidebar' && rootRef.current) {
         const rect = rootRef.current.getBoundingClientRect();
-        setSidebarWidth(
-          Math.max(MIN_SIDEBAR, Math.min(MAX_SIDEBAR, e.clientX - rect.left)),
-        );
+        setSidebarWidth(Math.max(MIN_SIDEBAR, Math.min(MAX_SIDEBAR, e.clientX - rect.left)));
       }
-      if (dragging.current === "console" && mainColRef.current) {
+      if (dragging.current === 'console' && mainColRef.current) {
         const rect = mainColRef.current.getBoundingClientRect();
         const fromBottom = rect.bottom - e.clientY;
         const maxConsole = rect.height - 120;
-        setConsoleHeight(
-          Math.max(MIN_CONSOLE, Math.min(maxConsole, fromBottom)),
-        );
+        setConsoleHeight(Math.max(MIN_CONSOLE, Math.min(maxConsole, fromBottom)));
       }
     };
     const up = () => {
       if (dragging.current) {
         dragging.current = null;
-        document.body.style.cursor = "";
+        document.body.style.cursor = '';
       }
     };
-    window.addEventListener("mousemove", move);
-    window.addEventListener("mouseup", up);
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
     return () => {
-      window.removeEventListener("mousemove", move);
-      window.removeEventListener("mouseup", up);
+      window.removeEventListener('mousemove', move);
+      window.removeEventListener('mouseup', up);
     };
   }, []);
 
   const onSidebarResize = (e: React.MouseEvent) => {
     e.preventDefault();
-    dragging.current = "sidebar";
-    document.body.style.cursor = "col-resize";
+    dragging.current = 'sidebar';
+    document.body.style.cursor = 'col-resize';
   };
   const onConsoleResize = (e: React.MouseEvent) => {
     e.preventDefault();
-    dragging.current = "console";
-    document.body.style.cursor = "row-resize";
+    dragging.current = 'console';
+    document.body.style.cursor = 'row-resize';
   };
 
   // ── Tab management ──
@@ -221,38 +198,28 @@ const IdeFileManager: React.FC<Props> = ({ children }) => {
       setTabs((prev) => {
         const idx = prev.findIndex((t) => t.id === id);
         const next = prev.filter((t) => t.id !== id);
-        if (activeTabId === id)
-          setActiveTabId(next[Math.max(0, idx - 1)]?.id ?? null);
+        if (activeTabId === id) setActiveTabId(next[Math.max(0, idx - 1)]?.id ?? null);
         return next;
       });
     },
-    [activeTabId],
+    [activeTabId]
   );
 
   const updateTabContent = useCallback(
     (id: string, content: string) =>
-      setTabs((prev) =>
-        prev.map((t) => (t.id === id ? { ...t, content, isDirty: true } : t)),
-      ),
-    [],
+      setTabs((prev) => prev.map((t) => (t.id === id ? { ...t, content, isDirty: true } : t))),
+    []
   );
 
   const markTabSaved = useCallback(
-    (id: string) =>
-      setTabs((prev) =>
-        prev.map((t) => (t.id === id ? { ...t, isDirty: false } : t)),
-      ),
-    [],
+    (id: string) => setTabs((prev) => prev.map((t) => (t.id === id ? { ...t, isDirty: false } : t))),
+    []
   );
 
   const setTabContent = useCallback(
     (id: string, content: string | null) =>
-      setTabs((prev) =>
-        prev.map((t) =>
-          t.id === id ? { ...t, content, isLoading: false } : t,
-        ),
-      ),
-    [],
+      setTabs((prev) => prev.map((t) => (t.id === id ? { ...t, content, isLoading: false } : t))),
+    []
   );
 
   const activeTab = tabs.find((t) => t.id === activeTabId) ?? null;
@@ -261,8 +228,8 @@ const IdeFileManager: React.FC<Props> = ({ children }) => {
   return (
     <>
       {isIdeMode && (
-        <div ref={rootRef} className="ide-root">
-          <aside className="ide-sidebar" style={{ width: sidebarWidth }}>
+        <div ref={rootRef} className='ide-root'>
+          <aside className='ide-sidebar' style={{ width: sidebarWidth }}>
             <FileTreeSidebar
               currentDirectory={currentDirectory}
               onDirectoryChange={setCurrentDirectory}
@@ -273,14 +240,11 @@ const IdeFileManager: React.FC<Props> = ({ children }) => {
             />
           </aside>
 
-          <div
-            className="ide-resizer ide-resizer--col"
-            onMouseDown={onSidebarResize}
-          />
+          <div className='ide-resizer ide-resizer--col' onMouseDown={onSidebarResize} />
 
-          <main ref={mainColRef} className="ide-main-col">
+          <main ref={mainColRef} className='ide-main-col'>
             <div
-              className="ide-editor-region"
+              className='ide-editor-region'
               style={{
                 height: `calc(100% - ${consoleActualHeight}px - 1px)`,
               }}
@@ -297,46 +261,32 @@ const IdeFileManager: React.FC<Props> = ({ children }) => {
               />
             </div>
 
-            {consoleOpen && (
-              <div
-                className="ide-resizer ide-resizer--row"
-                onMouseDown={onConsoleResize}
-              />
-            )}
+            {consoleOpen && <div className='ide-resizer ide-resizer--row' onMouseDown={onConsoleResize} />}
 
-            <div
-              className="ide-console-region"
-              style={{ height: consoleActualHeight }}
-            >
-              <div className="ide-console-header">
-                <div className="ide-console-header__tabs">
-                  <span className="ide-console-header__tab ide-console-header__tab--active">
-                    TERMINAL
-                  </span>
+            <div className='ide-console-region' style={{ height: consoleActualHeight }}>
+              <div className='ide-console-header'>
+                <div className='ide-console-header__tabs'>
+                  <span className='ide-console-header__tab ide-console-header__tab--active'>TERMINAL</span>
                 </div>
-                <div className="ide-console-header__actions">
+                <div className='ide-console-header__actions'>
                   <button
-                    className="ide-console-header__btn"
+                    className='ide-console-header__btn'
                     onClick={() => setConsoleOpen((v) => !v)}
-                    title={consoleOpen ? "Collapse" : "Expand"}
+                    title={consoleOpen ? 'Collapse' : 'Expand'}
                   >
-                    <i
-                      className={`bi ${consoleOpen ? "bi-chevron-down" : "bi-chevron-up"}`}
-                    ></i>
+                    <i className={`bi ${consoleOpen ? 'bi-chevron-down' : 'bi-chevron-up'}`}></i>
                   </button>
                 </div>
               </div>
               {consoleOpen && (
-                <div className="ide-console-body">
+                <div className='ide-console-body'>
                   <IdeConsole />
                 </div>
               )}
             </div>
           </main>
 
-          {isSettingsOpen && (
-            <IdeSettings onClose={() => setIsSettingsOpen(false)} />
-          )}
+          {isSettingsOpen && <IdeSettings onClose={() => setIsSettingsOpen(false)} />}
           {isSearchOpen && (
             <IdeSearch
               onClose={() => setIsSearchOpen(false)}
@@ -349,12 +299,9 @@ const IdeFileManager: React.FC<Props> = ({ children }) => {
 
       {!isIdeMode && (
         <div>
-          <div className="ide-switch-btn-wrap">
-            <button
-              className="ide-switch-btn"
-              onClick={() => setIsIdeMode(true)}
-            >
-              <i className="bi bi-code-slash"></i>
+          <div className='ide-switch-btn-wrap'>
+            <button className='ide-switch-btn' onClick={() => setIsIdeMode(true)}>
+              <i className='bi bi-code-slash'></i>
               Ouvrir l'éditeur IDE
             </button>
           </div>
