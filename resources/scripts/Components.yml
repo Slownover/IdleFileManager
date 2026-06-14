@@ -1,13 +1,4 @@
 Navigation:
-  NavigationBar:
-    BeforeNavigation: ""
-    AdditionalItems: ""
-    AfterNavigation: ""
-  SubNavigation:
-    BeforeSubNavigation: ""
-    AdditionalServerItems: ""
-    AdditionalAccountItems: ""
-    AfterSubNavigation: ""
   Routes:
     - {
         Name: "IDE",
