@@ -91,6 +91,7 @@ const MediaViewer: React.FC<{
 };
 
 const MONACO_CDN = 'https://cdn.jsdelivr.net/npm/monaco-editor@0.47.0/min/vs';
+const MONACO_BASE = 'https://cdn.jsdelivr.net/npm/monaco-editor@0.47.0/min/';
 
 const LANG_MAP: Record<string, string> = {
   javascript: 'javascript',
@@ -127,21 +128,12 @@ function loadMonaco(): Promise<void> {
       return;
     }
     (window as any).MonacoEnvironment = {
-      getWorkerUrl(_: string, label: string) {
-        const workers: Record<string, string> = {
-          json: `${MONACO_CDN}/language/json/json.worker.js`,
-          css: `${MONACO_CDN}/language/css/css.worker.js`,
-          scss: `${MONACO_CDN}/language/css/css.worker.js`,
-          less: `${MONACO_CDN}/language/css/css.worker.js`,
-          html: `${MONACO_CDN}/language/html/html.worker.js`,
-          handlebars: `${MONACO_CDN}/language/html/html.worker.js`,
-          typescript: `${MONACO_CDN}/language/typescript/ts.worker.js`,
-          javascript: `${MONACO_CDN}/language/typescript/ts.worker.js`,
-        };
-        const w = workers[label] ?? `${MONACO_CDN}/editor/editor.worker.js`;
-        return `data:text/javascript;charset=utf-8,${encodeURIComponent(
-          `self.MonacoEnvironment={baseUrl:'${MONACO_CDN}/'};importScripts('${w}');`
-        )}`;
+      getWorkerUrl(_: string, _label: string) {
+        const workerUrl = `${MONACO_CDN}/base/worker/workerMain.js`;
+        const blob = new Blob([`self.MonacoEnvironment={baseUrl:'${MONACO_BASE}'};importScripts('${workerUrl}');`], {
+          type: 'application/javascript',
+        });
+        return URL.createObjectURL(blob);
       },
     };
     const s = document.createElement('script');
